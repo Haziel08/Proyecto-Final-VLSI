@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transmisor Óptico - Figuras FPGA</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f5f7;
+      margin: 0;
+      padding: 18px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 0;
+      color: #222;
+    }
+
+    label {
+      display: block;
+      margin-top: 14px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    select, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 1px solid #bbb;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    button {
+      border: none;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+
+    #send-btn {
+      background: #0066cc;
+    }
+
+    #clear-btn {
+      background: #cc3300;
+    }
+
+    button:disabled {
+      background: #888;
+      cursor: not-allowed;
+    }
+
+    .transmitter-section {
+      margin-top: 24px;
+      text-align: center;
+    }
+
+    #optic-beacon {
+      width: 150px;
+      height: 150px;
+      background: black;
+      border: 5px solid #222;
+      border-radius: 14px;
+      margin: 16px auto;
+      transition: none;
+    }
+
+    #binary-preview {
+      font-family: monospace;
+      font-size: 14px;
+      background: #eeeeee;
+      padding: 10px;
+      border-radius: 8px;
+      word-break: break-all;
+      color: #111;
+    }
+
+    #status {
+      margin-top: 12px;
+      font-weight: bold;
+      color: #444;
+      text-align: center;
+    }
+
+    .note {
+      font-size: 13px;
+      color: #555;
+      margin-top: 14px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Control de Figuras - Transmisión Óptica</h2>
+
+    <label for="shape">Figura geométrica:</label>
+    <select id="shape" onchange="updatePreview()">
+      <option value="00">Círculo</option>
+      <option value="01">Rectángulo</option>
+      <option value="10">Triángulo</option>
+    </select>
+
+    <label for="stroke">Color de filete / contorno:</label>
+    <select id="stroke" onchange="updatePreview()">
+      <option value="00">Negro</option>
+      <option value="01">Rojo</option>
+      <option value="10">Azul</option>
+      <option value="11">Verde</option>
+    </select>
+
+    <label for="fill">Color de relleno:</label>
+    <select id="fill" onchange="updatePreview()">
+      <option value="00">Blanco</option>
+      <option value="01">Rojo</option>
+      <option value="10">Azul</option>
+      <option value="11">Verde</option>
+    </select>
+
+    <label for="position">Posición en matriz 3x3:</label>
+    <select id="position" onchange="updatePreview()">
+      <option value="0000">Superior izquierdo</option>
+      <option value="0001">Superior centro</option>
+      <option value="0010">Superior derecho</option>
+      <option value="0011">Medio izquierdo</option>
+      <option value="0100">Centro</option>
+      <option value="0101">Medio derecho</option>
+      <option value="0110">Inferior izquierdo</option>
+      <option value="0111">Inferior centro</option>
+      <option value="1000">Inferior derecho</option>
+    </select>
+
+    <div class="transmitter-section">
+      <label>Trama binaria:</label>
+      <div id="binary-preview"></div>
+
+      <label>Coloca el fototransistor sobre esta zona:</label>
+      <div id="optic-beacon"></div>
+
+      <button id="send-btn" onclick="sendShapeFrame()">ENVIAR FIGURA</button>
+      <button id="clear-btn" onclick="sendClearFrame()">BORRAR / LIMPIAR VGA</button>
+
+      <div id="status">Listo para transmitir</div>
+
+      <p class="note">
+        Recomendación física: sube el brillo del celular al máximo, desactiva brillo automático
+        y coloca el fototransistor pegado a la región cuadrada. Blanco representa 1, negro representa 0.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    /*
+      Protocolo:
+      PREAMBLE = 10101010
+      START    = 1110
+      CMD      = 0 dibujar, 1 borrar
+      POS      = 4 bits
+      SHAPE    = 2 bits
+      STROKE   = 2 bits
+      FILL     = 2 bits
+      CHECK    = 4 bits
+      STOP     = 0000
+    */
+
+    const BIT_DURATION = 180;       // ms por bit. Más lento = más confiable con fototransistor.
+    const PREAMBLE = "10101010";
+    const START = "1110";
+    const STOP = "0000";
+
+    const beacon = document.getElementById("optic-beacon");
+    const statusText = document.getElementById("status");
+    const sendBtn = document.getElementById("send-btn");
+    const clearBtn = document.getElementById("clear-btn");
+
+    function getSelectedData() {
+      const position = document.getElementById("position").value;
+      const shape = document.getElementById("shape").value;
+      const stroke = document.getElementById("stroke").value;
+      const fill = document.getElementById("fill").value;
+
+      return {
+        position,
+        shape,
+        stroke,
+        fill
+      };
+    }
+
+    function calculateChecksum(payload) {
+      /*
+        Payload tiene 11 bits:
+        CMD + POS(4) + SHAPE(2) + STROKE(2) + FILL(2)
+
+        Para simplificar la validación en FPGA:
+        - se agrega un 0 al final para tener 12 bits
+        - se separa en 3 nibbles de 4 bits
+        - se hace XOR entre esos 3 nibbles
+      */
+
+      const padded = payload + "0";
+
+      const n1 = parseInt(padded.substring(0, 4), 2);
+      const n2 = parseInt(padded.substring(4, 8), 2);
+      const n3 = parseInt(padded.substring(8, 12), 2);
+
+      const check = n1 ^ n2 ^ n3;
+
+      return check.toString(2).padStart(4, "0");
+    }
+
+    function buildFrame(command) {
+      let payload;
+
+      if (command === "0") {
+        const data = getSelectedData();
+
+        payload =
+          command +
+          data.position +
+          data.shape +
+          data.stroke +
+          data.fill;
+      } else {
+        // Comando borrar:
+        // CMD = 1 y todos los campos de datos en cero.
+        payload = "1" + "0000" + "00" + "00" + "00";
+      }
+
+      const checksum = calculateChecksum(payload);
+
+      return PREAMBLE + START + payload + checksum + STOP;
+    }
+
+    function updatePreview() {
+      const frame = buildFrame("0");
+
+      const data = getSelectedData();
+      const payload =
+        "0" +
+        data.position +
+        data.shape +
+        data.stroke +
+        data.fill;
+
+      const checksum = calculateChecksum(payload);
+
+      document.getElementById("binary-preview").innerText =
+        "PRE " + PREAMBLE +
+        " | START " + START +
+        " | CMD 0" +
+        " | POS " + data.position +
+        " | FIG " + data.shape +
+        " | FILETE " + data.stroke +
+        " | RELLENO " + data.fill +
+        " | CHECK " + checksum +
+        " | STOP " + STOP +
+        "\n\nCompleta: " + frame;
+    }
+
+    function setBeaconBit(bit) {
+      if (bit === "1") {
+        beacon.style.backgroundColor = "white";
+      } else {
+        beacon.style.backgroundColor = "black";
+      }
+    }
+
+    function lockButtons(isLocked) {
+      sendBtn.disabled = isLocked;
+      clearBtn.disabled = isLocked;
+    }
+
+    async function transmitFrame(frame, label) {
+      lockButtons(true);
+      statusText.innerText = "Transmitiendo: " + label;
+
+      // Estado de reposo antes de iniciar.
+      setBeaconBit("0");
+      await wait(BIT_DURATION * 4);
+
+      for (let i = 0; i < frame.length; i++) {
+        const bit = frame[i];
+
+        setBeaconBit(bit);
+        statusText.innerText =
+          "Transmitiendo " + label + " | bit " + (i + 1) + " de " + frame.length +
+          " = " + bit;
+
+        await wait(BIT_DURATION);
+      }
+
+      // Regresar a reposo.
+      setBeaconBit("0");
+      statusText.innerText = "Transmisión terminada: " + label;
+      lockButtons(false);
+    }
+
+    function wait(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function sendShapeFrame() {
+      const frame = buildFrame("0");
+      transmitFrame(frame, "DIBUJAR FIGURA");
+    }
+
+    function sendClearFrame() {
+      const frame = buildFrame("1");
+
+      document.getElementById("binary-preview").innerText =
+        "PRE " + PREAMBLE +
+        " | START " + START +
+        " | CMD 1" +
+        " | POS 0000" +
+        " | FIG 00" +
+        " | FILETE 00" +
+        " | RELLENO 00" +
+        " | CHECK " + calculateChecksum("10000000000") +
+        " | STOP " + STOP +
+        "\n\nCompleta: " + frame;
+
+      transmitFrame(frame, "BORRAR PANTALLA");
+    }
+
+    updatePreview();
+  </script>
+</body>
+</html>
