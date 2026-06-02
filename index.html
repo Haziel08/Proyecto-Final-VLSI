@@ -6,107 +6,146 @@
   <title>Transmisor Óptico - Figuras FPGA</title>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f3f5f7;
-      margin: 0;
-      padding: 18px;
-      display: flex;
-      justify-content: center;
-    }
+  body {
+    font-family: Arial, sans-serif;
+    background: #000000;
+    color: #f5f5f5;
+    margin: 0;
+    padding: 14px;
+    display: flex;
+    justify-content: center;
+  }
 
-    .container {
-      width: 100%;
-      max-width: 480px;
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
-    }
+  .container {
+    width: 100%;
+    max-width: 500px;
+    background: #101010;
+    padding: 18px;
+    border-radius: 16px;
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.08);
+    border: 1px solid #292929;
+  }
 
-    h2 {
-      text-align: center;
-      margin-top: 0;
-      color: #222;
-    }
+  h2 {
+    text-align: center;
+    margin: 0 0 12px 0;
+    color: #ffffff;
+  }
 
-    label {
-      display: block;
-      margin-top: 14px;
-      font-weight: bold;
-      color: #333;
-    }
+  label {
+    display: block;
+    margin-top: 14px;
+    font-weight: bold;
+    color: #e8e8e8;
+  }
 
-    select, button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      border-radius: 10px;
-      border: 1px solid #bbb;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
+  .main-label {
+    margin-top: 0;
+    font-size: 17px;
+    color: #ffffff;
+  }
 
-    button {
-      border: none;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 16px;
-    }
+  select, button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    border-radius: 10px;
+    border: 1px solid #444;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
 
-    #send-btn {
-      background: #0066cc;
-    }
+  select {
+    background: #1c1c1c;
+    color: #ffffff;
+  }
 
-    #clear-btn {
-      background: #cc3300;
-    }
+  button {
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 12px;
+  }
 
-    button:disabled {
-      background: #888;
-      cursor: not-allowed;
-    }
+  .top-transmitter {
+    margin-top: 8px;
+    padding: 14px;
+    background: #050505;
+    border: 1px solid #333333;
+    border-radius: 14px;
+    text-align: center;
+  }
 
-    .transmitter-section {
-      margin-top: 24px;
-      text-align: center;
-    }
+  #optic-beacon {
+    width: 190px;
+    height: 190px;
+    background: #000000;
+    border: 6px solid #333333;
+    border-radius: 16px;
+    margin: 14px auto;
+    transition: none;
+  }
 
+  .button-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  #send-btn {
+    background: #0077ff;
+  }
+
+  #clear-btn {
+    background: #cc3300;
+  }
+
+  button:disabled {
+    background: #666666;
+    cursor: not-allowed;
+  }
+
+  #status {
+    margin-top: 12px;
+    font-weight: bold;
+    color: #dddddd;
+    text-align: center;
+  }
+
+  .controls-section {
+    margin-top: 18px;
+  }
+
+  #binary-preview {
+    font-family: monospace;
+    font-size: 13px;
+    background: #050505;
+    padding: 10px;
+    border-radius: 8px;
+    word-break: break-all;
+    color: #00ff66;
+    border: 1px solid #333333;
+  }
+
+  .note {
+    font-size: 13px;
+    color: #bbbbbb;
+    margin-top: 14px;
+    line-height: 1.4;
+  }
+
+  @media (max-width: 420px) {
     #optic-beacon {
-      width: 150px;
-      height: 150px;
-      background: black;
-      border: 5px solid #222;
-      border-radius: 14px;
-      margin: 16px auto;
-      transition: none;
+      width: 170px;
+      height: 170px;
     }
 
-    #binary-preview {
-      font-family: monospace;
-      font-size: 14px;
-      background: #eeeeee;
-      padding: 10px;
-      border-radius: 8px;
-      word-break: break-all;
-      color: #111;
+    .button-row {
+      grid-template-columns: 1fr;
     }
-
-    #status {
-      margin-top: 12px;
-      font-weight: bold;
-      color: #444;
-      text-align: center;
-    }
-
-    .note {
-      font-size: 13px;
-      color: #555;
-      margin-top: 14px;
-      line-height: 1.4;
-    }
-  </style>
+  }
+</style>
 </head>
 
 <body>
@@ -152,12 +191,13 @@
     <div class="transmitter-section">
       <label>Trama binaria:</label>
       <div id="binary-preview"></div>
+      <button id="send-btn" onclick="sendShapeFrame()">ENVIAR FIGURA</button>
+      <button id="clear-btn" onclick="sendClearFrame()">BORRAR / LIMPIAR VGA</button>
 
       <label>Coloca el fototransistor sobre esta zona:</label>
       <div id="optic-beacon"></div>
 
-      <button id="send-btn" onclick="sendShapeFrame()">ENVIAR FIGURA</button>
-      <button id="clear-btn" onclick="sendClearFrame()">BORRAR / LIMPIAR VGA</button>
+      
 
       <div id="status">Listo para transmitir</div>
 
@@ -278,12 +318,14 @@
     }
 
     function setBeaconBit(bit) {
-      if (bit === "1") {
-        beacon.style.backgroundColor = "white";
-      } else {
-        beacon.style.backgroundColor = "black";
-      }
-    }
+  if (bit === "1") {
+    beacon.style.backgroundColor = "#ff0000";
+    beacon.style.boxShadow = "0 0 45px rgba(255, 0, 0, 1)";
+  } else {
+    beacon.style.backgroundColor = "#000000";
+    beacon.style.boxShadow = "none";
+  }
+}
 
     function lockButtons(isLocked) {
       sendBtn.disabled = isLocked;
