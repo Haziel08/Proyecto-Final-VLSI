@@ -1,202 +1,383 @@
 <!DOCTYPE html>
+<!-- Define el documento como HTML5. -->
 <html lang="es">
+<!-- Indica que el idioma principal del documento es español. -->
 <head>
+<!-- Encabezado que contiene metadatos y estilos. -->
   <meta charset="UTF-8" />
+  <!-- Define UTF-8 como codificación de caracteres. -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Ajusta el ancho de visualización para dispositivos móviles. -->
   <title>Transmisor Óptico - Figuras FPGA</title>
+  <!-- Título que se muestra en la pestaña del navegador. -->
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f3f5f7;
-      margin: 0;
-      padding: 18px;
-      display: flex;
-      justify-content: center;
-    }
+  /* Estilos generales del cuerpo de la página. */
+  body {
+    font-family: Arial, sans-serif;
+    /* Tipo de letra principal. */
+    background: #000000;
+    /* Fondo negro para la interfaz. */
+    color: #f5f5f5;
+    /* Texto claro sobre fondo oscuro. */
+    margin: 0;
+    /* Elimina el margen predeterminado del navegador. */
+    padding: 14px;
+    /* Espacio interno alrededor del cuerpo. */
+    display: flex;
+    /* Usa flexbox para centrar el contenido. */
+    justify-content: center;
+    /* Centra el contenedor horizontalmente. */
+  }
 
-    .container {
-      width: 100%;
-      max-width: 480px;
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
-    }
+  /* Estilo del contenedor principal que agrupa los controles. */
+  .container {
+    width: 100%;
+    /* Ocupa todo el ancho disponible. */
+    max-width: 500px;
+    /* Limita el ancho máximo del panel. */
+    background: #101010;
+    /* Fondo oscuro del panel. */
+    padding: 18px;
+    /* Espacio interno entre el borde y el contenido. */
+    border-radius: 16px;
+    /* Bordes redondeados suaves. */
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.08);
+    /* Sombra tenue alrededor del panel. */
+    border: 1px solid #292929;
+    /* Borde oscuro para definición de contorno. */
+  }
 
-    h2 {
-      text-align: center;
-      margin-top: 0;
-      color: #222;
-    }
+  /* Estilo del título principal dentro del contenedor. */
+  h2 {
+    text-align: center;
+    /* Centra el texto del título. */
+    margin: 0 0 12px 0;
+    /* Elimina margen superior y agrega margen inferior. */
+    color: #ffffff;
+    /* Texto blanco para mayor contraste. */
+  }
 
-    label {
-      display: block;
-      margin-top: 14px;
-      font-weight: bold;
-      color: #333;
-    }
+  /* Estilos básicos para etiquetas de formulario. */
+  label {
+    display: block;
+    /* Hace que la etiqueta ocupe una línea entera. */
+    margin-top: 14px;
+    /* Espacio entre etiquetas y elementos anteriores. */
+    font-weight: bold;
+    /* Texto en negrita para destacar la etiqueta. */
+    color: #e8e8e8;
+    /* Color de texto gris claro. */
+  }
 
-    select, button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      border-radius: 10px;
-      border: 1px solid #bbb;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
+  /* Estilo opcional para etiquetas destacadas. */
+  .main-label {
+    margin-top: 0;
+    /* Sin margen superior adicional. */
+    font-size: 17px;
+    /* Tamaño de fuente ligeramente mayor. */
+    color: #ffffff;
+    /* Texto blanco. */
+  }
 
-    button {
-      border: none;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 16px;
-    }
+  /* Estilo compartido para selectores y botones. */
+  select, button {
+    width: 100%;
+    /* Ocupa todo el ancho disponible. */
+    padding: 12px;
+    /* Espacio interno dentro del control. */
+    margin-top: 6px;
+    /* Espacio superior entre controles. */
+    border-radius: 10px;
+    /* Bordes redondeados. */
+    border: 1px solid #444;
+    /* Borde gris oscuro. */
+    font-size: 16px;
+    /* Tamaño de fuente legible. */
+    box-sizing: border-box;
+    /* Incluye padding en el ancho total. */
+  }
 
-    #send-btn {
-      background: #0066cc;
-    }
+  /* Estilo específico para selectores desplegables. */
+  select {
+    background: #1c1c1c;
+    /* Fondo oscuro para el selector. */
+    color: #ffffff;
+    /* Texto blanco dentro del selector. */
+  }
 
-    #clear-btn {
-      background: #cc3300;
-    }
+  /* Estilo específico para botones. */
+  button {
+    border: none;
+    /* Elimina el borde estándar del botón. */
+    color: white;
+    /* Texto blanco del botón. */
+    font-weight: bold;
+    /* Texto en negrita para enfatizar la acción. */
+    cursor: pointer;
+    /* Muestra el cursor de mano. */
+    margin-top: 12px;
+    /* Espacio extra sobre cada botón. */
+  }
 
-    button:disabled {
-      background: #888;
-      cursor: not-allowed;
-    }
+  /* Estilo de un panel secundario dentro de la interfaz. */
+  .top-transmitter {
+    margin-top: 8px;
+    /* Espacio superior entre secciones. */
+    padding: 14px;
+    /* Espacio interno del panel. */
+    background: #050505;
+    /* Fondo casi negro. */
+    border: 1px solid #333333;
+    /* Borde gris oscuro. */
+    border-radius: 14px;
+    /* Bordes redondeados. */
+    text-align: center;
+    /* Centra el contenido del panel. */
+  }
 
-    .transmitter-section {
-      margin-top: 24px;
-      text-align: center;
-    }
+  /* Estilo del área visual que representa el fototransistor. */
+  #optic-beacon {
+    width: 190px;
+    /* Ancho fijo para el área de transmisión. */
+    height: 190px;
+    /* Alto fijo para mantener proporción cuadrada. */
+    background: #000000;
+    /* Color inicial negro para señal apagada. */
+    border: 6px solid #333333;
+    /* Borde grueso oscuro. */
+    border-radius: 16px;
+    /* Bordes redondeados del área. */
+    margin: 14px auto;
+    /* Centra horizontalmente y agrega espacio vertical. */
+    transition: none;
+    /* Desactiva transiciones para cambios instantáneos. */
+  }
 
+  /* Estilo de fila de botones usando grid. */
+  .button-row {
+    display: grid;
+    /* Usa grid para distribuir botones. */
+    grid-template-columns: 1fr 1fr;
+    /* Dos columnas iguales. */
+    gap: 10px;
+    /* Espacio entre los botones. */
+  }
+
+  /* Color del botón de envío. */
+  #send-btn {
+    background: #0077ff;
+    /* Azul brillante para acción principal. */
+  }
+
+  /* Color del botón de borrado. */
+  #clear-btn {
+    background: #cc3300;
+    /* Rojo para indicar acción de limpieza. */
+  }
+
+  /* Estilos para botones deshabilitados. */
+  button:disabled {
+    background: #666666;
+    /* Color gris apagado. */
+    cursor: not-allowed;
+    /* Indica que no se puede interactuar. */
+  }
+
+  /* Estilo del texto de estado de transmisión. */
+  #status {
+    margin-top: 12px;
+    /* Espacio entre el estado y el contenido anterior. */
+    font-weight: bold;
+    /* Texto en negrita. */
+    color: #dddddd;
+    /* Texto gris claro. */
+    text-align: center;
+    /* Centra el texto del estado. */
+  }
+
+  /* Estilo de la sección de controles. */
+  .controls-section {
+    margin-top: 18px;
+    /* Espacio superior para separar secciones. */
+  }
+
+  /* Estilo del área de vista previa de la trama binaria. */
+  #binary-preview {
+    font-family: monospace;
+    /* Fuente de ancho fijo para alinear bits. */
+    font-size: 13px;
+    /* Tamaño de texto legible. */
+    background: #050505;
+    /* Fondo oscuro para la vista previa. */
+    padding: 10px;
+    /* Espacio interno dentro del cuadro. */
+    border-radius: 8px;
+    /* Bordes redondeados. */
+    word-break: break-all;
+    /* Permite cortar cadena larga de bits. */
+    color: #00ff66;
+    /* Texto verde para estilo de consola. */
+    border: 1px solid #333333;
+    /* Borde gris oscuro alrededor. */
+  }
+
+  /* Estilo de la nota explicativa al final. */
+  .note {
+    font-size: 13px;
+    /* Texto más pequeño para la nota. */
+    color: #bbbbbb;
+    /* Color gris claro para menor énfasis. */
+    margin-top: 14px;
+    /* Espacio superior antes de la nota. */
+    line-height: 1.4;
+    /* Espaciado de línea cómodo para lectura. */
+  }
+
+  /* Estilos responsivos para pantallas pequeñas. */
+  @media (max-width: 420px) {
     #optic-beacon {
-      width: 150px;
-      height: 150px;
-      background: black;
-      border: 5px solid #222;
-      border-radius: 14px;
-      margin: 16px auto;
-      transition: none;
+      width: 170px;
+      /* Reduce ancho del beacon en móviles. */
+      height: 170px;
+      /* Reduce alto del beacon en móviles. */
     }
 
-    #binary-preview {
-      font-family: monospace;
-      font-size: 14px;
-      background: #eeeeee;
-      padding: 10px;
-      border-radius: 8px;
-      word-break: break-all;
-      color: #111;
+    .button-row {
+      grid-template-columns: 1fr;
+      /* Una sola columna para botones en móviles. */
     }
-
-    #status {
-      margin-top: 12px;
-      font-weight: bold;
-      color: #444;
-      text-align: center;
-    }
-
-    .note {
-      font-size: 13px;
-      color: #555;
-      margin-top: 14px;
-      line-height: 1.4;
-    }
-  </style>
+  }
+</style>
 </head>
 
 <body>
+  <!-- Contenedor principal de la interfaz. -->
   <div class="container">
+    <!-- Título de la aplicación. -->
     <h2>Control de Figuras - Transmisión Óptica</h2>
 
+    <!-- Etiqueta y selector para la figura geométrica. -->
     <label for="shape">Figura geométrica:</label>
     <select id="shape" onchange="updatePreview()">
       <option value="00">Círculo</option>
+      <!-- Opción binaria 00 representa círculo. -->
       <option value="01">Rectángulo</option>
+      <!-- Opción binaria 01 representa rectángulo. -->
       <option value="10">Triángulo</option>
+      <!-- Opción binaria 10 representa triángulo. -->
     </select>
 
+    <!-- Etiqueta y selector para el color del borde de la figura. -->
     <label for="stroke">Color de filete / contorno:</label>
     <select id="stroke" onchange="updatePreview()">
       <option value="00">Negro</option>
+      <!-- Opción binaria 00 representa contorno negro. -->
       <option value="01">Rojo</option>
+      <!-- Opción binaria 01 representa contorno rojo. -->
       <option value="10">Azul</option>
+      <!-- Opción binaria 10 representa contorno azul. -->
       <option value="11">Verde</option>
+      <!-- Opción binaria 11 representa contorno verde. -->
     </select>
 
+    <!-- Etiqueta y selector para el color de relleno de la figura. -->
     <label for="fill">Color de relleno:</label>
     <select id="fill" onchange="updatePreview()">
       <option value="00">Blanco</option>
+      <!-- Opción binaria 00 representa relleno blanco. -->
       <option value="01">Rojo</option>
+      <!-- Opción binaria 01 representa relleno rojo. -->
       <option value="10">Azul</option>
+      <!-- Opción binaria 10 representa relleno azul. -->
       <option value="11">Verde</option>
+      <!-- Opción binaria 11 representa relleno verde. -->
     </select>
 
+    <!-- Etiqueta y selector para la posición dentro de la matriz 3x3. -->
     <label for="position">Posición en matriz 3x3:</label>
     <select id="position" onchange="updatePreview()">
       <option value="0000">Superior izquierdo</option>
+      <!-- posición superior izquierda. -->
       <option value="0001">Superior centro</option>
+      <!-- posición superior centro. -->
       <option value="0010">Superior derecho</option>
+      <!-- posición superior derecho. -->
       <option value="0011">Medio izquierdo</option>
+      <!-- posición medio izquierdo. -->
       <option value="0100">Centro</option>
+      <!-- posición centro. -->
       <option value="0101">Medio derecho</option>
+      <!-- posición medio derecho. -->
       <option value="0110">Inferior izquierdo</option>
+      <!-- posición inferior izquierdo. -->
       <option value="0111">Inferior centro</option>
+      <!-- posición inferior centro. -->
       <option value="1000">Inferior derecho</option>
+      <!-- posición inferior derecho. -->
     </select>
 
+    <!-- Sección que agrupa la transmisión y la vista previa. -->
     <div class="transmitter-section">
       <label>Trama binaria:</label>
+      <!-- Muestra la trama binaria construida. -->
       <div id="binary-preview"></div>
+      <!-- Contenedor donde se renderiza la trama binaria. -->
+      <button id="send-btn" onclick="sendShapeFrame()">ENVIAR FIGURA</button>
+      <!-- Botón para iniciar la transmisión de dibujo. -->
+      <button id="clear-btn" onclick="sendClearFrame()">BORRAR / LIMPIAR VGA</button>
+      <!-- Botón para iniciar la transmisión de borrado. -->
 
       <label>Coloca el fototransistor sobre esta zona:</label>
+      <!-- Instrucción para posicionar el sensor óptico. -->
       <div id="optic-beacon"></div>
-
-      <button id="send-btn" onclick="sendShapeFrame()">ENVIAR FIGURA</button>
-      <button id="clear-btn" onclick="sendClearFrame()">BORRAR / LIMPIAR VGA</button>
+      <!-- Área que cambia de color simulando la luz emitida. -->
 
       <div id="status">Listo para transmitir</div>
+      <!-- Texto que muestra el estado actual del sistema. -->
 
       <p class="note">
         Recomendación física: sube el brillo del celular al máximo, desactiva brillo automático
         y coloca el fototransistor pegado a la región cuadrada. Blanco representa 1, negro representa 0.
       </p>
+      <!-- Nota con instrucciones adicionales para una transmisión confiable. -->
     </div>
   </div>
 
   <script>
     /*
-      Protocolo:
-      PREAMBLE = 10101010
-      START    = 1110
-      CMD      = 0 dibujar, 1 borrar
-      POS      = 4 bits
-      SHAPE    = 2 bits
-      STROKE   = 2 bits
-      FILL     = 2 bits
-      CHECK    = 4 bits
-      STOP     = 0000
+      Protocolo de transmisión utilizado por la aplicación.
+      PREAMBLE sincroniza al receptor.
+      START indica el comienzo del frame.
+      CMD define si se dibuja o se borra.
+      POS, SHAPE, STROKE y FILL son datos de la figura.
+      CHECK valora la integridad del payload.
+      STOP marca el final del frame.
     */
 
-    const BIT_DURATION = 180;       // ms por bit. Más lento = más confiable con fototransistor.
-    const PREAMBLE = "10101010";
-    const START = "1110";
-    const STOP = "0000";
+    const BIT_DURATION = 180;       // Duración en milisegundos de cada bit transmitido.
+    const PREAMBLE = "10101010";   // Secuencia inicial para sincronización.
+    const START = "1110";          // Patrón que marca el inicio del frame.
+    const STOP = "0000";           // Patrón que marca el fin del frame.
 
     const beacon = document.getElementById("optic-beacon");
+    // Elemento que simula la salida óptica del transmisor.
     const statusText = document.getElementById("status");
+    // Elemento donde se muestra el estado de la transmisión.
     const sendBtn = document.getElementById("send-btn");
+    // Botón para enviar el frame de dibujo.
     const clearBtn = document.getElementById("clear-btn");
+    // Botón para enviar el frame de limpieza.
 
     function getSelectedData() {
       const position = document.getElementById("position").value;
+      // Lee el valor binario actual de la posición seleccionada.
       const shape = document.getElementById("shape").value;
+      // Lee el valor binario actual de la figura seleccionada.
       const stroke = document.getElementById("stroke").value;
+      // Lee el valor binario actual del contorno.
       const fill = document.getElementById("fill").value;
+      // Lee el valor binario actual del relleno.
 
       return {
         position,
@@ -204,35 +385,39 @@
         stroke,
         fill
       };
+      // Devuelve todos los valores seleccionados en un objeto.
     }
 
     function calculateChecksum(payload) {
       /*
-        Payload tiene 11 bits:
-        CMD + POS(4) + SHAPE(2) + STROKE(2) + FILL(2)
-
-        Para simplificar la validación en FPGA:
-        - se agrega un 0 al final para tener 12 bits
-        - se separa en 3 nibbles de 4 bits
-        - se hace XOR entre esos 3 nibbles
+        Calcula un checksum de 4 bits para el payload.
+        El payload original es de 11 bits y se rellena a 12 bits para simplificar.
       */
 
       const padded = payload + "0";
+      // Añade un bit cero al final para completar 12 bits.
 
       const n1 = parseInt(padded.substring(0, 4), 2);
+      // Convierte los primeros 4 bits a un número entero.
       const n2 = parseInt(padded.substring(4, 8), 2);
+      // Convierte los siguientes 4 bits a un número entero.
       const n3 = parseInt(padded.substring(8, 12), 2);
+      // Convierte los últimos 4 bits a un número entero.
 
       const check = n1 ^ n2 ^ n3;
+      // Calcula el checksum aplicando XOR entre los tres nibbles.
 
       return check.toString(2).padStart(4, "0");
+      // Devuelve el resultado como una cadena binaria de 4 bits.
     }
 
     function buildFrame(command) {
       let payload;
+      // Variable donde se construye el payload.
 
       if (command === "0") {
         const data = getSelectedData();
+        // Obtiene los datos seleccionados para dibujar.
 
         payload =
           command +
@@ -240,29 +425,35 @@
           data.shape +
           data.stroke +
           data.fill;
+        // Concatena todos los campos en una sola cadena de bits.
       } else {
-        // Comando borrar:
-        // CMD = 1 y todos los campos de datos en cero.
+        // Si el comando es borrar, todos los datos de figura son ceros.
         payload = "1" + "0000" + "00" + "00" + "00";
       }
 
       const checksum = calculateChecksum(payload);
+      // Calcula el checksum a partir del payload.
 
       return PREAMBLE + START + payload + checksum + STOP;
+      // Devuelve el frame completo listo para transmitir.
     }
 
     function updatePreview() {
       const frame = buildFrame("0");
+      // Construye el frame de dibujo actual para mostrarlo.
 
       const data = getSelectedData();
+      // Obtiene los datos seleccionados para la vista previa.
       const payload =
         "0" +
         data.position +
         data.shape +
         data.stroke +
         data.fill;
+      // Construye el payload sin checksum.
 
       const checksum = calculateChecksum(payload);
+      // Calcula el checksum del payload actual.
 
       document.getElementById("binary-preview").innerText =
         "PRE " + PREAMBLE +
@@ -275,57 +466,80 @@
         " | CHECK " + checksum +
         " | STOP " + STOP +
         "\n\nCompleta: " + frame;
+      // Actualiza el texto que muestra la trama binaria completa.
     }
 
     function setBeaconBit(bit) {
+      // Cambia el estado visual del beacon según el bit transmitido.
       if (bit === "1") {
-        beacon.style.backgroundColor = "white";
+        beacon.style.backgroundColor = "#ff0000";
+        // Si el bit es 1, el área se enciende en rojo.
+        beacon.style.boxShadow = "0 0 45px rgba(255, 0, 0, 1)";
+        // Agrega un halo luminoso para simular emisión de luz.
       } else {
-        beacon.style.backgroundColor = "black";
+        beacon.style.backgroundColor = "#000000";
+        // Si el bit es 0, el área permanece oscura.
+        beacon.style.boxShadow = "none";
+        // Quita el halo luminoso.
       }
     }
 
     function lockButtons(isLocked) {
       sendBtn.disabled = isLocked;
+      // Habilita o deshabilita el botón de envío.
       clearBtn.disabled = isLocked;
+      // Habilita o deshabilita el botón de limpieza.
     }
 
     async function transmitFrame(frame, label) {
       lockButtons(true);
+      // Bloquea los botones para evitar envíos simultáneos.
       statusText.innerText = "Transmitiendo: " + label;
+      // Actualiza el mensaje de estado a transmisión en curso.
 
-      // Estado de reposo antes de iniciar.
       setBeaconBit("0");
+      // Coloca el beacon en reposo antes de iniciar.
       await wait(BIT_DURATION * 4);
+      // Espera unos bits en estado bajo para sincronizar.
 
       for (let i = 0; i < frame.length; i++) {
         const bit = frame[i];
+        // Lee el bit actual del frame.
 
         setBeaconBit(bit);
+        // Actualiza el beacon según el valor del bit.
         statusText.innerText =
           "Transmitiendo " + label + " | bit " + (i + 1) + " de " + frame.length +
           " = " + bit;
+        // Muestra el número de bit en transmisión.
 
         await wait(BIT_DURATION);
+        // Espera la duración de un bit antes del siguiente.
       }
 
-      // Regresar a reposo.
       setBeaconBit("0");
+      // Regresa el beacon a reposo después de enviar.
       statusText.innerText = "Transmisión terminada: " + label;
+      // Informa que la transmisión concluyó.
       lockButtons(false);
+      // Vuelve a habilitar los botones.
     }
 
     function wait(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
+      // Devuelve una promesa que se resuelve después de ms milisegundos.
     }
 
     function sendShapeFrame() {
       const frame = buildFrame("0");
+      // Construye el frame de dibujo.
       transmitFrame(frame, "DIBUJAR FIGURA");
+      // Inicia la transmisión del frame de dibujo.
     }
 
     function sendClearFrame() {
       const frame = buildFrame("1");
+      // Construye el frame de borrado.
 
       document.getElementById("binary-preview").innerText =
         "PRE " + PREAMBLE +
@@ -338,11 +552,14 @@
         " | CHECK " + calculateChecksum("10000000000") +
         " | STOP " + STOP +
         "\n\nCompleta: " + frame;
+      // Muestra la trama de borrado en la vista previa.
 
       transmitFrame(frame, "BORRAR PANTALLA");
+      // Inicia la transmisión del comando de limpieza.
     }
 
     updatePreview();
+    // Llama a updatePreview al cargar la página para mostrar los datos iniciales.
   </script>
 </body>
 </html>
